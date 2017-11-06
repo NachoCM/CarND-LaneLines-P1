@@ -1,8 +1,7 @@
 # **Finding Lane Lines on the Road** 
 
-## Writeup Template
+## Writeup
 
-### You can use this file as a template for your writeup if you want to submit it as a markdown file. But feel free to use some other method and submit a pdf if you prefer.
 
 ---
 
@@ -17,7 +16,7 @@ The goals / steps of this project are the following:
 
 [image_low_slope]: ./examples/low_slope_example.jpg "Low slope lines"
 [image_center]: ./examples/lines_in_center.png "Confounding lines inside the lane"
-[image_center_region]: ./examples/lines_in_center_region.png "Before and after region of intrest"
+[image_center_regions]: ./examples/lines_in_center_regions.png "Before and after region of intrest"
 
 ---
 
@@ -42,10 +41,10 @@ The slope and bias of each line was calculated, and the final lane markings were
 
 **Challenge video**
 This approach worked fine for the first two sample videos, but for the "challenge" video, adjustments were required. The first adjustment was technical, the video had four color channels, so a parameter was added to functions generating the blank lines and lanes images to accomodate for images with different number of color channels. 
-Additionally, some frames of this video contained elements inside the lane that could be confused with lane markings: 
+Additionally, some frames of this video contained elements inside the lane that could be confused with lane markings, moving the resulting lane towards the center of the road: 
 ![alt text][image_center]
 To address this issue, the region of interest was redefined from a trapezoid to two bars around the expected position of the markings.
-![alt text][image_center_region]
+![alt text][image_center_regions]
 
 
 
