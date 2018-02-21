@@ -1,56 +1,63 @@
 # **Finding Lane Lines on the Road** 
+---
+(For an improved version, see: [Advanced Lane Detection](https://github.com/NachoCM/CarND-Advanced-Lane-Lines))
+
+**Finding Lane Lines on the Road**
+
+The goal of this project was  to make a pipeline that finds lane lines on the road.
+
+
+
+[//]: # (Image References)
+
+[image_low_slope]: ./examples/low_slope_example.jpg "Low slope lines"
+[image_center]: ./examples/lines_in_center.png "Confounding lines inside the lane"
+[image_center_regions]: ./examples/lines_in_center_regions.png "Before and after region of intrest"
+
+---
+
+### Reflection
+
+### 1. Pipeline description 
+
+My pipeline consisted of 5 steps. 
+    
+   1. Convert image to grayscale
+   2. Apply a gaussian blur to the image
+   3. Apply the Canny transformation to detect edges in the image
+   4. Establish a region of interest 
+   5. Apply the Hough transform to detect lines in the image
+   6. Extrapolate from the lines identified in the image to draw a single line in each side of the lane.
+
+
+
+Let's explain how the last step constructs the lines that will contain the lane. The lines identified by the Hough transform that had a slope over a certain threshold were assigned to the left and right lane markings based on the sign of the slope: lines with negative slope would be assigned to the left lane, and lines with positive slope to the right lane (the y-axis in inverted in relation to a regular axis of coordinates, so what visually appear to be positive slopes are negative, and viceversa).
+
+The slope and bias of each line was calculated, and the final lane markings were constructed as lines with the weighted average slope an bias of the candidate lines, using the length of the lines as weights.
+
+**Challenge video**
+This approach worked fine for the first two sample videos, but for the "challenge" video, adjustments were required. The first adjustment was technical, the video had four color channels, so a parameter was added to functions generating the blank lines and lanes images to accomodate for images with different number of color channels. 
+Additionally, some frames of this video contained elements inside the lane that could be confused with lane markings, moving the resulting lane towards the center of the road: 
+![alt text][image_center]
+To address this issue, the region of interest was redefined from a trapezoid to two bars around the expected position of the markings.
+![alt text][image_center_regions]
+
+
+
+
+### 2. Identify potential shortcomings with your current pipeline
+
+
+This approach seems to generate reliable lane markings in videos with good light, and strong lane marks. However, the left lane marking of the 'challenge' video dissapears at some points, as the contrast is too low. The lines are also quite jittery. 
+
+The pipeline is also untested with different lane marking colors and shapes (such as the zig-zag marks used in the UK for non-stopping areas), and with low lane visibility (such as when closely following another car). 
+
+
+### 3. Suggest possible improvements to your pipeline
+
+A possible improvement would be  to process more than one frame at a time, so lower contrast lines could be identified when we know where to look for them, and the position of the lane markings is not allowed to change too much from a frame to the next avoiding jitter.
+
+---
+
+This project was completed as part the Udacity Self Driving Car Nanodegree 
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
-
-<img src="./examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
-
-Overview
----
-
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
-
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
-
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
-
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
-
-
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
-
-1. Describe the pipeline
-
-2. Identify any shortcomings
-
-3. Suggest possible improvements
-
-We encourage using images in your writeup to demonstrate how your pipeline works.  
-
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
-
-
-The Project
----
-
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
-
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://classroom.udacity.com/nanodegrees/nd013/parts/fbf77062-5703-404e-b60c-95b78b2f3f9e/modules/83ec35ee-1e02-48a5-bdb7-d244bd47c2dc/lessons/8c82408b-a217-4d09-b81d-1bda4c6380ef/concepts/4f1870e0-3849-43e4-b670-12e6f2d4b7a7) if you haven't already.
-
-**Step 2:** Open the code in a Jupyter Notebook
-
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out <A HREF="https://www.packtpub.com/books/content/basics-jupyter-notebook-and-python" target="_blank">Cyrille Rossant's Basics of Jupyter Notebook and Python</A> to get started.
-
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
-
-`> jupyter notebook`
-
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
-
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
